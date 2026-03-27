@@ -3,94 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Game</title>
-    <style>
-        body {
-            background: linear-gradient(135deg, #6a5acd, #00bfff);
-            font-family: Arial, sans-serif;
-            color: white;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        #gameCanvas {
-            border: 2px solid #fff;
-            background: #000;
-        }
-    </style>
+    <title>My Website</title>
 </head>
 <body>
-<div class="container">
-    <h1>Car Racing Game</h1>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <button onclick="startGame()">Start Game</button>
-    <div id="ui">
-        <p>Money: <span id="money">0</span></p>
-        <p>Unlocked Cars: <span id="unlockedCars"></span></p>
-    </div>
-</div>
-<script>
-let car, money = 0;
-const checkpoints = [];
-let currentCar = 'Red Pro';
-
-function startGame() {
-    var canvas = document.getElementById('gameCanvas');
-    var ctx = canvas.getContext('2d');
-    car = { x: 50, y: 500, width: 50, height: 30 }; // Car object
-    draw();
-    addCheckpoints();
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawCar();
-    drawObstacles();
-    requestAnimationFrame(draw);
-}
-
-function drawCar() {
-    ctx.fillStyle = 'blue'; // Car color
-    ctx.fillRect(car.x, car.y, car.width, car.height);
-}
-
-function addCheckpoints() {
-    checkpoints.push({ x: 200, y: 400 });
-    // Add more checkpoints
-}
-
-function drawObstacles() {
-    ctx.fillStyle = 'orange';
-    ctx.fillRect(300, 450, 20, 40);
-    ctx.fillStyle = 'white';
-    ctx.fillRect(305, 445, 10, 40);
-}
-
-function saveProgress() {
-    const userProgress = {
-        money: money,
-        unlockedCars: [currentCar],
-        levelProgress: 1
-    };
-    localStorage.setItem('userProgress', JSON.stringify(userProgress));
-}
-
-function loadProgress() {
-    const savedProgress = localStorage.getItem('userProgress');
-    if (savedProgress) {
-        const progress = JSON.parse(savedProgress);
-        money = progress.money;
-        document.getElementById('money').innerText = money;
-        // Load unlocked cars and other progress
-    }
-}
-
-loadProgress();
-</script>
+    <h1>Welcome to My Website</h1>
+    <p>This is a backup version of the content of index.html.</p>
 </body>
 </html>
