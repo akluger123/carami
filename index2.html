@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top-Down Drift Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+            color: white;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            border: 4px solid #444;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <h3 style="margin-top:0">Drift Hunters: Top-Down</h3>
+    <p><b>ARROWS</b> to Drive & Drift</p>
+    <p id="speedo">Speed: 0</p>
+</div>
+
+<script>
+let car;
+let track;
+
+function setup() {
+    createCanvas(windowWidth * 0.9, windowHeight * 0.9);
+    car = new Drifter(width / 2, height / 2);
+}
+
+function draw() {
+    background(30);
+    
+    // Draw "Pro" Style Track
+    drawTrack();
+
+    car.update();
+    car.display();
+    
+    document.getElementById('speedo').innerText = "Speed: " + floor(car.vel.mag() * 10);
+}
+
+function drawTrack() {
+    noFill();
+    stroke(60);
+    strokeWeight(80);
+    rect(100, 100, width - 200, height - 200, 100);
+    
+    // Center line
+    stroke(255, 204, 0, 100);
+    strokeWeight(2);
+    setLineDash([20, 20]);
+    rect(100, 100, width - 200, height - 200, 100);
+    setLineDash([]); // Reset dash
+}
+
+function setLineDash(list) {
+    drawingContext.setLineDash(list);
+}
+
+class Drifter {
+    constructor(x, y) {
+        this.pos = createVector(x, y);
+        this.vel = createVector(0, 0);
+        this.acc = createVector(0, 0);
+        this.angle = 0;
+        
+        // Physics Tuning (The "Pro" replica settings)
+        this.driftFactor = 0.96;  // How much sideways grip (closer to 1 = less slide)
+        this.friction = 0.985;    // Rolling resistance
+        this.turnSensitivity = 0.07;
+        this.power = 0.25;
+    }
+
+    update() {
+        // 1. Inputs
+        if (keyIsDown(UP_ARROW)) {
+            let engineForce = p5.Vector.fromAngle(this.angle);
+            engineForce.mult(this.power);
+            this.acc.add(engineForce);
+        }
+        if (keyIsDown(LEFT_ARROW)) this.angle -= this.turnSensitivity;
+        if (keyIsDown(RIGHT_ARROW)) this.angle += this.turnSensitivity;
+
+        // 2. Physics Engine (Vector Projection)
+        this.vel.add(this.acc);
+        
+        let forwardDir = p5.Vector.fromAngle(this.angle);
+        let lateralDir = p5.Vector.fromAngle(this.angle + HALF_PI);
+
+        // Split velocity into forward and sideways components
+        let fSpeed = this.vel.dot(forwardDir);
+        let lSpeed = this.vel.dot(lateralDir);
+
+        // Apply "Drift" - keep forward momentum, bleed off sideways momentum slowly
+        let newLateral = lateralDir.mult(lSpeed * this.driftFactor);
+        let newForward = forwardDir.mult(fSpeed);
+
+        this.vel = newForward.add(newLateral);
+        this.vel.mult(this.friction); // Apply air/road resistance
+        
+        this.pos.add(this.vel);
+        this.acc.mult(0); // Reset acceleration for next frame
+
+        // Screen wrap (so you don't lose the car)
+        if (this.pos.x > width) this.pos.x = 0;
+        if (this.pos.x < 0) this.pos.x = width;
+        if (this.pos.y > height) this.pos.y = 0;
+        if (this.pos.y < 0) this.pos.y = height;
+    }
+
+    display() {
+        push();
+        translate(this.pos.x, this.pos.y);
+        rotate(this.angle);
+        
+        // Shadow
+        fill(0, 50);
+        noStroke();
+        rect(2, 2, 40, 20, 5);
+        
+        // Car Body
+        fill(200, 30, 30); // Red Pro car
+        stroke(0);
+        strokeWeight(1);
+        rectMode(CENTER);
+        rect(0, 0, 40, 20, 4); 
+        
+        // Details
+        fill(50);
+        rect(12, 0, 8, 16); // Front Windshield
+        fill(255, 255, 0);
+        rect(18, -7, 3, 5); // Headlight L
+        rect(18, 7, 3, 5);  // Headlight R
+        pop();
+    }
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth * 0.9, windowHeight * 0.9);
+}
+</script>
+
+</body>
+</html>
